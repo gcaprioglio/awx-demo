@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: true
+  become_user: root
+  #  vars_files:
+  #    - /srv/ansible/group_vars/all/vars
+  tasks:
+    - name: Update, upgrade and notify if it fails
+      block:
+        - name: Update apt repo and cache
+          apt: update_cache=yes force_apt_get=yes
+        - name: Upgrade packages
+          apt: upgrade=safe force_apt_get=yes
+#      rescue:
+#        - name: Sending an e-mail using AWS SES
+#          mail:
+#            host: "{{ smtp_url }}"
+#            port: 587
+#            secure: starttls
+#            username: "{{ smtp_user }}"
+#            password: "{{ smtp_pass }}"
+#            to: "{{ notification_email }}"
+#            from: "{{ ansible_email }}"
+#            subject: "Failed {{ ansible_failed_task.name }} for {{ inventory_hostname }}"
+#            body: "{{ ansible_failed_result }}"
+#          delegate_to: localhost
+#          failed_when: true
+
+    - name: Check if a reboot is needed on all servers
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+    - name: Notify reboot if kernel updated
+      debug:
+        msg: "WATCH OUT: a Reboot is required!"
+#      reboot:
+#        msg: "Reboot initiated by Ansible for kernel updates"
+#        connect_timeout: 5
+#        reboot_timeout: 300
+#        pre_reboot_delay: 0
+#        post_reboot_delay: 30
+#        test_command: uptime
+      when: reboot_required_file.stat.exists
