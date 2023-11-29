@@ -11,20 +11,20 @@
           apt: update_cache=yes force_apt_get=yes
         - name: Upgrade packages
           apt: upgrade=safe force_apt_get=yes
-#      rescue:
-#        - name: Sending an e-mail using AWS SES
-#          mail:
-#            host: "{{ smtp_url }}"
-#            port: 587
-#            secure: starttls
-#            username: "{{ smtp_user }}"
-#            password: "{{ smtp_pass }}"
-#            to: "{{ notification_email }}"
-#            from: "{{ ansible_email }}"
-#            subject: "Failed {{ ansible_failed_task.name }} for {{ inventory_hostname }}"
-#            body: "{{ ansible_failed_result }}"
-#          delegate_to: localhost
-#          failed_when: true
+      rescue:
+        - name: Sending an e-mail using AWS SES
+          mail:
+            host: "{{ smtp_url }}"
+            port: "{{ smtp_port }}"
+            secure: starttls
+            username: "{{ smtp_user }}"
+            password: "{{ smtp_pass }}"
+            to: "giovanni.caprioglio@farmforce.com"
+            from: "ansible@farmforce.com"
+            subject: "Failed {{ ansible_failed_task.name }} for {{ inventory_hostname }}"
+            body: "{{ ansible_failed_result }}"
+          delegate_to: localhost
+          failed_when: true
 
     - name: Check if a reboot is needed on all servers
       register: reboot_required_file
