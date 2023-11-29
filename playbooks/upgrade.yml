@@ -13,6 +13,7 @@
           apt: upgrade=safe force_apt_get=yes
       rescue:
         - name: Sending an e-mail using AWS SES
+          become: false
           mail:
             host: "{{ smtp_url }}"
             port: "{{ smtp_port }}"
